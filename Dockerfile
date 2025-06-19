@@ -1,6 +1,6 @@
 # Define the base image
 # Using a slim version of Node.js 20 for a smaller image size
-FROM node:20-slim
+FROM node:20-alpine3.22
 
 # Set the working directory inside the container
 # This is where the application code will be copied
