@@ -1,6 +1,6 @@
 # Define the base image
 # Using a slim version of Node.js 20 for a smaller image size
-FROM node:20-alpine3.22
+FROM node:20 AS build
 
 # Set the working directory inside the container
 # This is where the application code will be copied
@@ -12,9 +12,7 @@ WORKDIR /usr/src/app
 # and only re-run the installation if these files change
 COPY package*.json ./
 
-# Run yarn install to install dependencies
-# This will create a node_modules directory with all the dependencies
-# specified in package.json
+# Install dependencies
 RUN npm install
 
 # Copy the rest of the application code into the container
@@ -22,12 +20,16 @@ RUN npm install
 COPY . .
 
 # Build the application
-# This step compiles the source code into a production-ready format
-# The build command is defined in package.json scripts
-# It typically involves transpiling TypeScript to JavaScript, bundling files, etc.
-# Ensure that the build command is defined in package.json
-# under the "scripts" section as "build"
 RUN npm run build
+RUN npm install --omit=dev && npm cache clean --force
+
+FROM node:20-alpine3.22 
+
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app/package.json ./package.json
+COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/node_modules ./node_modules
 
 # Port configuration
 # Expose port 3000 for the application
@@ -39,4 +41,4 @@ EXPOSE 3000
 # This command will run the application using yarn
 # Ensure that the start command is defined in package.json
 # under the "scripts" section as "start"
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:prod"]
