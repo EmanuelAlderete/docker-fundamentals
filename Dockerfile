@@ -10,12 +10,12 @@ WORKDIR /usr/src/app
 # Copy package.json and yarn.lock files first
 # This allows Docker to cache the dependencies layer
 # and only re-run the installation if these files change
-COPY package.json ./
+COPY package*.json ./
 
 # Run yarn install to install dependencies
 # This will create a node_modules directory with all the dependencies
 # specified in package.json
-RUN yarn
+RUN npm install
 
 # Copy the rest of the application code into the container
 # This includes all source files, configuration files, etc.
@@ -27,7 +27,7 @@ COPY . .
 # It typically involves transpiling TypeScript to JavaScript, bundling files, etc.
 # Ensure that the build command is defined in package.json
 # under the "scripts" section as "build"
-RUN yarn run build
+RUN npm run build
 
 # Port configuration
 # Expose port 3000 for the application
@@ -39,4 +39,4 @@ EXPOSE 3000
 # This command will run the application using yarn
 # Ensure that the start command is defined in package.json
 # under the "scripts" section as "start"
-CMD ["yarn", "run", "start"]
+CMD ["npm", "run", "start"]
